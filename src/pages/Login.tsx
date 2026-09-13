@@ -32,7 +32,7 @@ const Login = () => {
       alert('Login successful! Welcome to Admin Panel.');
       navigate('/admin');
     } else {
-      setError('Invalid username or password. Try: admin / admin123');
+      setError('You are not Admin Bro😂😂.Fuck You👌👌');
     }
 
     setLoading(false);
