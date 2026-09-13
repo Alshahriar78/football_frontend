@@ -11,8 +11,8 @@ const Login = () => {
 
   // Demo credentials - in real app this would be from backend
   const ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'admin123'
+    username: 'Murad10',
+    password: 'Murad123@123'
   };
 
   const handleLogin = async (e: React.FormEvent) => {
