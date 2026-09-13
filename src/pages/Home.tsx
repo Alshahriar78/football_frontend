@@ -232,9 +232,7 @@ const Home = () => {
           >
             🚀 Access Admin Panel
           </a>
-          <span style={{ color: '#92400e', fontSize: '0.75rem' }}>
-            Demo: admin / admin123
-          </span>
+          
         </div>
       </div>
 
@@ -249,7 +247,7 @@ const Home = () => {
         fontSize: isMobile ? '0.75rem' : '0.875rem'
       }}>
         <p style={{ margin: '0.5rem 0' }}>⚽ eFootball Tournament Management System</p>
-        <p style={{ margin: '0.5rem 0', color: '#9ca3af' }}>Powered by NestJS + React + PostgreSQL</p>
+        
         <div style={{ 
           marginTop: '0.75rem', 
           paddingTop: '0.75rem', 

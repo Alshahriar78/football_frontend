@@ -298,21 +298,7 @@ const Login = () => {
         </div>
 
         {/* Demo Credentials Info */}
-        <div style={{
-          backgroundColor: '#fef3c7',
-          border: '1px solid #fbbf24',
-          borderRadius: '0.5rem',
-          padding: '1rem',
-          marginTop: '1rem'
-        }}>
-          <h4 style={{ color: '#92400e', fontSize: '0.875rem', fontWeight: 'bold', margin: '0 0 0.5rem 0' }}>
-            🔥 Demo Credentials
-          </h4>
-          <p style={{ color: '#92400e', fontSize: '0.75rem', margin: 0 }}>
-            <strong>Username:</strong> admin<br />
-            <strong>Password:</strong> admin123
-          </p>
-        </div>
+        
 
         {/* Security Info */}
         <div style={{
