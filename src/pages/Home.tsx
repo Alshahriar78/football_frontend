@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const isMobile = window.innerWidth < 768;
@@ -126,7 +127,11 @@ const Home = () => {
           gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))', 
           gap: isMobile ? '0.75rem' : '1rem'
         }}>
-          <div style={{ 
+
+          {/* Fixtures DIV CARD */}
+          <Link to="/fixtures"
+            style={{ textDecoration: 'none' }}>
+            <div style={{ 
             backgroundColor: '#eff6ff', 
             padding: isMobile ? '1rem' : '1.5rem', 
             borderRadius: '0.5rem',
@@ -134,9 +139,13 @@ const Home = () => {
           }}>
             <h3 style={{ color: '#1e40af', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: isMobile ? '0.875rem' : '1rem', margin: '0 0 0.5rem 0' }}>🎮 Fixtures</h3>
             <p style={{ color: '#6b7280', fontSize: isMobile ? '0.75rem' : '0.875rem', margin: 0 }}>View upcoming matches</p>
-          </div>
-          
-          <div style={{ 
+            </div>
+          </Link>
+
+          {/* RESULTS DIV CARD */}
+          <Link to="/results"
+             style={{ textDecoration: 'none' }}>
+            <div style={{ 
             backgroundColor: '#f0fdf4', 
             padding: isMobile ? '1rem' : '1.5rem', 
             borderRadius: '0.5rem',
@@ -144,9 +153,12 @@ const Home = () => {
           }}>
             <h3 style={{ color: '#166534', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: isMobile ? '0.875rem' : '1rem', margin: '0 0 0.5rem 0' }}>📊 Results</h3>
             <p style={{ color: '#6b7280', fontSize: isMobile ? '0.75rem' : '0.875rem', margin: 0 }}>Check match scores</p>
-          </div>
-          
-          <div style={{ 
+            </div>
+          </Link>
+          {/* STANDINGS DIV CARD */}
+          <Link to="/standings"
+             style={{ textDecoration: 'none' }}>
+             <div style={{ 
             backgroundColor: '#fefce8', 
             padding: isMobile ? '1rem' : '1.5rem', 
             borderRadius: '0.5rem',
@@ -154,9 +166,13 @@ const Home = () => {
           }}>
             <h3 style={{ color: '#a16207', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: isMobile ? '0.875rem' : '1rem', margin: '0 0 0.5rem 0' }}>🏆 Standings</h3>
             <p style={{ color: '#6b7280', fontSize: isMobile ? '0.75rem' : '0.875rem', margin: 0 }}>Live league table</p>
-          </div>
+             </div>
+          </Link>
 
-          <div style={{ 
+          {/* STATISTICS DIV CARD */}
+          <Link to="/statistics"
+             style={{ textDecoration: 'none' }}>
+             <div style={{ 
             backgroundColor: '#fdf2f8', 
             padding: isMobile ? '1rem' : '1.5rem', 
             borderRadius: '0.5rem',
@@ -164,8 +180,13 @@ const Home = () => {
           }}>
             <h3 style={{ color: '#be185d', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: isMobile ? '0.875rem' : '1rem', margin: '0 0 0.5rem 0' }}>📈 Statistics</h3>
             <p style={{ color: '#6b7280', fontSize: isMobile ? '0.75rem' : '0.875rem', margin: 0 }}>Performance analysis</p>
-          </div>
+             </div>
+          </Link>
 
+
+          {/* TEAMS DIV CARD */}
+          <Link to="/teams"
+             style={{ textDecoration: 'none' }}>
           <div style={{ 
             backgroundColor: '#f3e8ff', 
             padding: isMobile ? '1rem' : '1.5rem', 
@@ -175,8 +196,12 @@ const Home = () => {
             <h3 style={{ color: '#7c3aed', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: isMobile ? '0.875rem' : '1rem', margin: '0 0 0.5rem 0' }}>👥 Teams</h3>
             <p style={{ color: '#6b7280', fontSize: isMobile ? '0.75rem' : '0.875rem', margin: 0 }}>Browse players</p>
           </div>
+          </Link>
 
-          <div style={{ 
+           {/* ADMIN LOGIN DIV CARD */}
+          <Link to="/login"
+             style={{ textDecoration: 'none' }}>
+             <div style={{ 
             backgroundColor: '#fef2f2', 
             padding: isMobile ? '1rem' : '1.5rem', 
             borderRadius: '0.5rem',
@@ -184,7 +209,8 @@ const Home = () => {
           }}>
             <h3 style={{ color: '#dc2626', fontWeight: 'bold', marginBottom: '0.5rem', fontSize: isMobile ? '0.875rem' : '1rem', margin: '0 0 0.5rem 0' }}>🔐 Admin Login</h3>
             <p style={{ color: '#6b7280', fontSize: isMobile ? '0.75rem' : '0.875rem', margin: 0 }}>Manage tournament</p>
-          </div>
+             </div>
+          </Link>
         </div>
       </div>
 
