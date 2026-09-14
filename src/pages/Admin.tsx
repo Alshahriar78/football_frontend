@@ -635,110 +635,199 @@ const Admin = () => {
             Enter Match Results
           </h2>
 
-          <div style={{
-            backgroundColor: 'white',
-            padding: isMobile ? '1rem' : '1.5rem',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-          }}>
-            <h3 style={{ fontSize: isMobile ? '1rem' : '1.25rem', fontWeight: 'bold', margin: '0 0 1rem 0', color: '#1f2937' }}>
-              Pending Matches ({matches.filter(m => m.status === 'scheduled').length})
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {matches.filter(m => m.status === 'scheduled').length === 0 ? (
-                <p style={{ color: '#6b7280', textAlign: 'center', padding: '2rem' }}>No pending matches</p>
-              ) : (
-                matches.filter(m => m.status === 'scheduled').map((match) => (
-                  <div key={match.id} style={{
-                    padding: isMobile ? '0.75rem' : '1rem',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '0.5rem',
-                    backgroundColor: '#f9fafb'
-                  }}>
-                    {/* Match Info */}
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: isMobile ? 'flex-start' : 'center',
-                      flexDirection: isMobile ? 'column' : 'row',
-                      marginBottom: '0.75rem',
-                      gap: '0.25rem'
-                    }}>
-                      <span style={{ fontWeight: 'bold', color: '#1f2937', fontSize: isMobile ? '0.875rem' : '1rem' }}>
-                        {match.homeTeam?.name} vs {match.awayTeam?.name}
-                      </span>
-                      <span style={{ color: '#6b7280', fontSize: isMobile ? '0.7rem' : '0.75rem' }}>
-                        Round {match.round} · {match.venue}
-                      </span>
-                    </div>
+          {(() => {
+  const pendingMatches = matches.filter(
+    (match) => match.status === 'scheduled'
+  );
 
-                    {/* Score Input */}
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: isMobile ? '1fr auto 1fr auto' : 'auto auto auto auto auto',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
-                      <input
-                        type="number"
-                        placeholder={isMobile ? match.homeTeam?.name?.split(' ')[0] : `${match.homeTeam?.name} Score`}
-                        min="0"
-                        value={scores[match.id]?.home || ''}
-                        onChange={(e) => setScores(prev => ({
-                          ...prev,
-                          [match.id]: { ...prev[match.id], home: e.target.value }
-                        }))}
-                        style={{
-                          padding: '0.5rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '0.25rem',
-                          textAlign: 'center',
-                          fontSize: isMobile ? '0.875rem' : '1rem',
-                          width: '100%'
-                        }}
-                      />
-                      <span style={{ textAlign: 'center', fontWeight: 'bold', color: '#6b7280' }}>—</span>
-                      <input
-                        type="number"
-                        placeholder={isMobile ? match.awayTeam?.name?.split(' ')[0] : `${match.awayTeam?.name} Score`}
-                        min="0"
-                        value={scores[match.id]?.away || ''}
-                        onChange={(e) => setScores(prev => ({
-                          ...prev,
-                          [match.id]: { ...prev[match.id], away: e.target.value }
-                        }))}
-                        style={{
-                          padding: '0.5rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '0.25rem',
-                          textAlign: 'center',
-                          fontSize: isMobile ? '0.875rem' : '1rem',
-                          width: '100%'
-                        }}
-                      />
-                      <button
-                        onClick={() => updateMatchResult(match.id)}
-                        style={{
-                          padding: isMobile ? '0.5rem' : '0.5rem 1rem',
-                          backgroundColor: '#059669',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '0.25rem',
-                          cursor: 'pointer',
-                          fontSize: isMobile ? '0.75rem' : '0.875rem',
-                          fontWeight: 'bold',
-                          whiteSpace: 'nowrap',
-                          gridColumn: isMobile ? '1 / -1' : 'auto'
-                        }}
-                      >
-                        ✅ Update Result
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+  const groupedMatches = pendingMatches.reduce(
+    (groups: Record<number, Match[]>, match) => {
+      const round = Number(match.round);
+
+      if (!groups[round]) {
+        groups[round] = [];
+      }
+
+      groups[round].push(match);
+
+      return groups;
+    },
+    {}
+  );
+
+  return Object.entries(groupedMatches)
+    .sort(([roundA], [roundB]) => Number(roundA) - Number(roundB))
+    .map(([round, roundMatches]) => (
+      <div key={round} style={{ marginBottom: '1.5rem' }}>
+
+        {/* Round Header */}
+        <div
+          style={{
+            backgroundColor: '#eff6ff',
+            padding: '0.75rem 1rem',
+            borderRadius: '0.5rem',
+            border: '1px solid #dbeafe',
+            marginBottom: '0.75rem',
+          }}
+        >
+          <h3
+            style={{
+              margin: 0,
+              color: '#1e40af',
+              fontWeight: 'bold',
+              fontSize: isMobile ? '0.9rem' : '1rem',
+            }}
+          >
+            ⚽ Round {round} — {roundMatches.length}{' '}
+            {roundMatches.length === 1 ? 'Match' : 'Matches'}
+          </h3>
+        </div>
+
+        {/* Matches inside this round */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+          }}
+        >
+          {roundMatches
+            .sort(
+              (a, b) =>
+                new Date(a.matchDate).getTime() -
+                new Date(b.matchDate).getTime()
+            )
+            .map((match) => (
+              <div
+                key={match.id}
+                style={{
+                  backgroundColor: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '0.5rem',
+                  padding: isMobile ? '0.75rem' : '1rem',
+                }}
+              >
+                {/* Teams */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  <strong>
+                    {match.homeTeam?.name}
+                  </strong>
+
+                  <span
+                    style={{
+                      color: '#6b7280',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    VS
+                  </span>
+
+                  <strong>
+                    {match.awayTeam?.name}
+                  </strong>
+                </div>
+
+                {/* Match Info */}
+                <div
+                  style={{
+                    fontSize: '0.8rem',
+                    color: '#6b7280',
+                    marginBottom: '0.75rem',
+                  }}
+                >
+                  {match.venue} ·{' '}
+                  {new Date(match.matchDate).toLocaleDateString()}
+                </div>
+
+                {/* Score Input */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                  }}
+                >
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Home"
+                    value={scores[match.id]?.home || ''}
+                    onChange={(e) =>
+                      setScores((prev) => ({
+                        ...prev,
+                        [match.id]: {
+                          ...prev[match.id],
+                          home: e.target.value,
+                          away: prev[match.id]?.away || '',
+                        },
+                      }))
+                    }
+                    style={{
+                      width: '70px',
+                      padding: '0.5rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      textAlign: 'center',
+                    }}
+                  />
+
+                  <span style={{ fontWeight: 'bold' }}>-</span>
+
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Away"
+                    value={scores[match.id]?.away || ''}
+                    onChange={(e) =>
+                      setScores((prev) => ({
+                        ...prev,
+                        [match.id]: {
+                          ...prev[match.id],
+                          home: prev[match.id]?.home || '',
+                          away: e.target.value,
+                        },
+                      }))
+                    }
+                    style={{
+                      width: '70px',
+                      padding: '0.5rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem',
+                      textAlign: 'center',
+                    }}
+                  />
+
+                  <button
+                    onClick={() => updateMatchResult(match.id)}
+                    style={{
+                      marginLeft: '0.5rem',
+                      padding: '0.5rem 0.75rem',
+                      backgroundColor: '#2563eb',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.375rem',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Update Result
+                  </button>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+    ));
+})()}
         </div>
       )}
     </div>
