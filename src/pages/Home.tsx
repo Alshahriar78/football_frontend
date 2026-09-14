@@ -42,6 +42,20 @@ const Home = () => {
           marginBottom: isMobile ? '1rem' : '2rem',
         }}
       >
+
+        <img
+    src="/logo.jpg"
+    alt="Tournament Logo"
+    style={{
+      width: '70px',
+      height: '70px',
+      borderRadius: '50%',
+      objectFit: 'cover',
+      display: 'block',
+      margin: '0 auto 10px auto',
+    }}
+  />
+
         <h1
           style={{
             color: 'white',
