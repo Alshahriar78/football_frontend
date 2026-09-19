@@ -64,9 +64,18 @@ const Home = () => {
             textAlign: 'center',
             margin: 0,
           }}
+          
         >
           Mokamtola eFootball Tournament
         </h1>
+        <h2
+        style={{
+            color: 'red',
+            fontSize: isMobile ? '1.5rem' : '2rem',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            margin: 0,
+          }}>GET READY FOR UPDATE VERSION</h2>
 
         <p
           style={{
