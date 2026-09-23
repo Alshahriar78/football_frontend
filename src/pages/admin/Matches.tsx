@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { matchAPI, type Match } from '../../services/matchService';
 import {
   tournamentAPI,
