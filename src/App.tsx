@@ -1,32 +1,58 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Admin from './pages/Admin';
-import Teams from './pages/Teams';
-import Fixtures from './pages/Fixtures';
-import Results from './pages/Results';
-import Standings from './pages/Standings';
-import Statistics from './pages/Statistics';
-import TeamProfile from './pages/TeamProfile';
-import Login from './pages/Login';
+import { Routes, Route } from 'react-router-dom';
 
-function App() {
+import PublicLayout from './layouts/PublicLayout';
+
+import Home from './pages/public/Home';
+import Teams from './pages/public/Teams';
+import Fixtures from './pages/public/Fixtures';
+import Results from './pages/public/Results';
+import Standings from './pages/public/Standings';
+
+import Login from './pages/admin/Login';
+import Dashboard from './pages/admin/Dashboard';
+
+import ProtectedRoute from './components/common/ProtectedRoute';
+import AdminLayout from './layouts/AdminLayout';
+import Tournaments from './pages/admin/Tournaments';
+import AdminTeams from './pages/admin/Teams';
+import AdminMatches from './pages/admin/Matches';
+import AdminResults from './pages/admin/Results';
+import TeamDetails from './pages/public/TeamDetails';
+import Banners from './pages/admin/Banners';
+import Gallery from './pages/admin/Gallery';
+
+const App = () => {
   return (
-    <Router>
-      <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/teams" element={<Teams />} />
-          <Route path="/team/:id" element={<TeamProfile />} />
-          <Route path="/fixtures" element={<Fixtures />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="/standings" element={<Standings />} />
-          <Route path="/statistics" element={<Statistics />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin" element={<Admin />} />
-        </Routes>
-      </div>
-    </Router>
+    <Routes>
+      {/* Public Website */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/teams" element={<Teams />} />
+        <Route path="/fixtures" element={<Fixtures />} />
+        <Route path="/results" element={<Results />} />
+        <Route path="/standings" element={<Standings />} />
+        <Route path="/team/:id" element={<TeamDetails />} />
+      </Route>
+
+      {/* Admin Login */}
+      <Route path="/login" element={<Login />} />
+
+      {/* Protected Admin Routes */}
+      <Route element={<ProtectedRoute />}>
+         <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<Dashboard />} />
+            <Route path="/admin/tournaments" element={<Tournaments />} />
+            <Route path="/admin/teams" element={<AdminTeams />} />
+            <Route path="/admin/matches" element={<AdminMatches />} />
+            <Route path="/admin/results" element={<AdminResults />} />
+            <Route path="/admin/banners" element={<Banners />}/>
+            <Route path="/admin/gallery" element={<Gallery />} />
+         </Route>
+     </Route>
+     
+    </Routes>
+    
   );
-}
+};
 
 export default App;
