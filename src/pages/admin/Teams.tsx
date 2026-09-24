@@ -1,9 +1,26 @@
-import { type FormEvent, useEffect, useState } from 'react';
+
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useEffect,
+  useState,
+} from 'react';
+
 import { teamAPI, type Team } from '../../services/teamService';
 import {
   tournamentAPI,
   type Tournament,
 } from '../../services/tournamentService';
+import { uploadAPI } from '../../services/uploadService';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+];
 
 const Teams = () => {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -12,8 +29,11 @@ const Teams = () => {
   const [teamName, setTeamName] = useState('');
   const [playerName, setPlayerName] = useState('');
   const [phone, setPhone] = useState('');
-  const [logo, setLogo] = useState('');
   const [tournamentId, setTournamentId] = useState('');
+
+  // Player photo
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -36,7 +56,9 @@ const Teams = () => {
       if (tournamentData.length > 0 && !tournamentId) {
         setTournamentId(String(tournamentData[0].id));
       }
-    } catch {
+    } catch (error) {
+      console.error('Failed to load teams or tournaments:', error);
+
       setError('Failed to load teams or tournaments.');
     } finally {
       setLoading(false);
@@ -47,7 +69,97 @@ const Teams = () => {
     loadData();
   }, []);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  // Clean preview URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const handleFileChange = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+
+    setError('');
+    setSuccess('');
+
+    if (!file) {
+      return;
+    }
+
+    // Validate file type
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError(
+        'Please select a JPG, JPEG, PNG, or WebP image.',
+      );
+
+      event.target.value = '';
+      return;
+    }
+
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      setError('Player photo must be smaller than 5 MB.');
+
+      event.target.value = '';
+      return;
+    }
+
+    // Remove previous preview
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    const newPreviewUrl = URL.createObjectURL(file);
+
+    setSelectedFile(file);
+    setPreviewUrl(newPreviewUrl);
+  };
+
+  const removePhoto = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setSelectedFile(null);
+    setPreviewUrl('');
+
+    const fileInput = document.getElementById(
+      'player-photo',
+    ) as HTMLInputElement | null;
+
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  const resetForm = () => {
+    setTeamName('');
+    setPlayerName('');
+    setPhone('');
+    setSelectedFile(null);
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setPreviewUrl('');
+
+    const fileInput = document.getElementById(
+      'player-photo',
+    ) as HTMLInputElement | null;
+
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
+  const handleSubmit = async (
+    event: FormEvent<HTMLFormElement>,
+  ) => {
     event.preventDefault();
 
     setError('');
@@ -58,27 +170,50 @@ const Teams = () => {
       return;
     }
 
+    if (!teamName.trim()) {
+      setError('Please enter a team name.');
+      return;
+    }
+
+    if (!playerName.trim()) {
+      setError('Please enter a player name.');
+      return;
+    }
+
     setCreating(true);
 
     try {
+      let playerPhotoUrl: string | undefined;
+
+      // Upload player photo first
+      if (selectedFile) {
+        const uploadResult = await uploadAPI.image(
+          selectedFile,
+        );
+
+        playerPhotoUrl = uploadResult.url;
+      }
+
+      // Create team
       await teamAPI.create({
-        teamName,
-        playerName,
-        phone: phone || undefined,
-        logo: logo || undefined,
+        teamName: teamName.trim(),
+        playerName: playerName.trim(),
+        phone: phone.trim() || undefined,
+        logo: playerPhotoUrl,
         tournamentId: Number(tournamentId),
       });
 
-      setTeamName('');
-      setPlayerName('');
-      setPhone('');
-      setLogo('');
+      resetForm();
 
       setSuccess('Team registered successfully.');
 
       await loadData();
-    } catch {
-      setError('Failed to register team.');
+    } catch (error) {
+      console.error('Failed to register team:', error);
+
+      setError(
+        'Failed to register team. Please try again.',
+      );
     } finally {
       setCreating(false);
     }
@@ -127,14 +262,21 @@ const Teams = () => {
               <select
                 id="tournament"
                 value={tournamentId}
-                onChange={(event) => setTournamentId(event.target.value)}
+                onChange={(event) =>
+                  setTournamentId(event.target.value)
+                }
                 required
                 className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               >
-                <option value="">Select tournament</option>
+                <option value="">
+                  Select tournament
+                </option>
 
                 {tournaments.map((tournament) => (
-                  <option key={tournament.id} value={tournament.id}>
+                  <option
+                    key={tournament.id}
+                    value={tournament.id}
+                  >
                     {tournament.name}
                   </option>
                 ))}
@@ -154,14 +296,16 @@ const Teams = () => {
                 id="team-name"
                 type="text"
                 value={teamName}
-                onChange={(event) => setTeamName(event.target.value)}
+                onChange={(event) =>
+                  setTeamName(event.target.value)
+                }
                 placeholder="e.g. Real Madrid"
                 required
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
-            {/* Player */}
+            {/* Player Name */}
             <div>
               <label
                 htmlFor="player-name"
@@ -174,7 +318,9 @@ const Teams = () => {
                 id="player-name"
                 type="text"
                 value={playerName}
-                onChange={(event) => setPlayerName(event.target.value)}
+                onChange={(event) =>
+                  setPlayerName(event.target.value)
+                }
                 placeholder="e.g. Al Shahoriar"
                 required
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
@@ -197,31 +343,90 @@ const Teams = () => {
                 id="phone"
                 type="tel"
                 value={phone}
-                onChange={(event) => setPhone(event.target.value)}
+                onChange={(event) =>
+                  setPhone(event.target.value)
+                }
                 placeholder="01XXXXXXXXX"
                 className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
 
-            {/* Logo */}
+            {/* Player Photo */}
             <div>
               <label
-                htmlFor="logo"
+                htmlFor="player-photo"
                 className="mb-2 block text-sm font-semibold text-slate-700"
               >
-                Logo URL
+                Player Photo
                 <span className="ml-1 font-normal text-slate-400">
                   (Optional)
                 </span>
               </label>
 
+              {previewUrl ? (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex items-center gap-4">
+                    {/* Preview */}
+                    <img
+                      src={previewUrl}
+                      alt="Player preview"
+                      className="h-20 w-20 shrink-0 rounded-full border-2 border-white object-cover shadow-sm"
+                    />
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-slate-700">
+                        {selectedFile?.name}
+                      </p>
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        {selectedFile
+                          ? `${(
+                              selectedFile.size /
+                              1024 /
+                              1024
+                            ).toFixed(2)} MB`
+                          : ''}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={removePhoto}
+                        className="mt-2 text-xs font-semibold text-red-600 transition hover:text-red-700"
+                      >
+                        Remove photo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <label
+                  htmlFor="player-photo"
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center transition hover:border-blue-400 hover:bg-blue-50"
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
+                    📷
+                  </div>
+
+                  <p className="mt-3 text-sm font-semibold text-slate-700">
+                    Upload player photo
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    JPG, PNG or WebP • Maximum 5 MB
+                  </p>
+
+                  <span className="mt-3 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white">
+                    Choose Photo
+                  </span>
+                </label>
+              )}
+
               <input
-                id="logo"
-                type="url"
-                value={logo}
-                onChange={(event) => setLogo(event.target.value)}
-                placeholder="https://example.com/logo.png"
-                className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                id="player-photo"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={handleFileChange}
+                className="hidden"
               />
             </div>
 
@@ -242,10 +447,16 @@ const Teams = () => {
             {/* Submit */}
             <button
               type="submit"
-              disabled={creating || tournaments.length === 0}
+              disabled={
+                creating || tournaments.length === 0
+              }
               className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {creating ? 'Registering...' : 'Register Team'}
+              {creating
+                ? selectedFile
+                  ? 'Uploading & Registering...'
+                  : 'Registering...'
+                : 'Register Team'}
             </button>
           </form>
         </div>
@@ -261,7 +472,8 @@ const Teams = () => {
 
                 <p className="mt-1 text-sm text-slate-500">
                   {teams.length} team
-                  {teams.length !== 1 ? 's' : ''} registered
+                  {teams.length !== 1 ? 's' : ''}{' '}
+                  registered
                 </p>
               </div>
 
@@ -297,16 +509,16 @@ const Teams = () => {
                   className="rounded-2xl border border-slate-200 p-4 transition hover:border-slate-300 hover:shadow-sm"
                 >
                   <div className="flex items-center gap-4">
-                    {/* Logo */}
+                    {/* Player Photo */}
                     {team.logo ? (
                       <img
                         src={team.logo}
-                        alt={team.teamName}
-                        className="h-14 w-14 shrink-0 rounded-xl object-contain"
+                        alt={team.playerName}
+                        className="h-16 w-16 shrink-0 rounded-full border-2 border-slate-100 object-cover"
                       />
                     ) : (
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-2xl">
-                        ⚽
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-slate-100 text-2xl">
+                        👤
                       </div>
                     )}
 
@@ -351,3 +563,4 @@ const Teams = () => {
 };
 
 export default Teams;
+
