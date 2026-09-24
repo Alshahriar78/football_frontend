@@ -20,6 +20,9 @@ import AdminResults from './pages/admin/Results';
 import TeamDetails from './pages/public/TeamDetails';
 import Banners from './pages/admin/Banners';
 import Gallery from './pages/admin/Gallery';
+import Announcements from './pages/admin/Announcements';
+import PublicAnnouncements from './pages/public/Announcements';
+import PublicGallery from './pages/public/Gallery';
 
 const App = () => {
   return (
@@ -32,6 +35,8 @@ const App = () => {
         <Route path="/results" element={<Results />} />
         <Route path="/standings" element={<Standings />} />
         <Route path="/team/:id" element={<TeamDetails />} />
+        <Route path="/announcements" element={<PublicAnnouncements />}/>
+        <Route path="/gallery" element={<PublicGallery />} />
       </Route>
 
       {/* Admin Login */}
@@ -47,6 +52,7 @@ const App = () => {
             <Route path="/admin/results" element={<AdminResults />} />
             <Route path="/admin/banners" element={<Banners />}/>
             <Route path="/admin/gallery" element={<Gallery />} />
+            <Route path="/admin/announcements" element={<Announcements />} />
          </Route>
      </Route>
      

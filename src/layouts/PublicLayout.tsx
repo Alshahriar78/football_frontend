@@ -34,6 +34,14 @@ const PublicLayout = () => {
     {
       name: 'Standings',
       path: '/standings',
+    }, 
+    {
+      name: 'Announcements',
+      path: '/announcements',
+    },
+    {
+      name: 'Tournament Gallery',
+      path: '/gallery',
     },
   ];
 
