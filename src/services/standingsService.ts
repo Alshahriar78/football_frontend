@@ -3,7 +3,7 @@ import api from './api';
 export interface Standing {
   teamId: number;
   teamName: string;
-
+  logo: string | null;
   played: number;
   won: number;
   draw: number;

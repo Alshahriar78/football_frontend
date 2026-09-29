@@ -227,16 +227,18 @@ const Standings = () => {
                       className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50"
                     >
                       <td className="px-5 py-5">
-                        <span
-                          className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
-                            index === 0
-                              ? 'bg-amber-100 text-amber-700'
-                              : 'bg-slate-100 text-slate-600'
-                          }`}
-                        >
-                          {index + 1}
-                        </span>
-                      </td>
+  {team.logo ? (
+    <img
+      src={team.logo}
+      alt={`${team.teamName} logo`}
+      className="h-10 w-10 rounded-full object-cover border border-slate-200"
+    />
+  ) : (
+    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-sm font-bold text-slate-500">
+      {index + 1}
+    </div>
+  )}
+</td>
 
                       <td className="px-5 py-5">
                         <div className="font-semibold text-slate-900">
@@ -304,33 +306,44 @@ const Standings = () => {
                 className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
               >
                 {/* Team Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                        index === 0
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      {index + 1}
-                    </span>
+               {/* Team Header */}
+<div className="flex items-center justify-between">
+  <div className="flex min-w-0 items-center gap-3">
 
-                    <h2 className="truncate font-bold text-slate-900">
-                      {team.teamName}
-                    </h2>
-                  </div>
+    {team.logo ? (
+      <img
+        src={team.logo}
+        alt={`${team.teamName} logo`}
+        className="h-10 w-10 shrink-0 rounded-full object-cover border border-slate-200"
+      />
+    ) : (
+      <span
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+          index === 0
+            ? 'bg-amber-100 text-amber-700'
+            : 'bg-slate-100 text-slate-600'
+        }`}
+      >
+        {index + 1}
+      </span>
+    )}
 
-                  <div className="ml-3 text-right">
-                    <p className="text-xs text-slate-400">
-                      POINTS
-                    </p>
+    <h2 className="truncate font-bold text-slate-900">
+      {team.teamName}
+    </h2>
 
-                    <p className="text-2xl font-black text-slate-900">
-                      {team.points}
-                    </p>
-                  </div>
-                </div>
+  </div>
+
+  <div className="ml-3 text-right">
+    <p className="text-xs text-slate-400">
+      POINTS
+    </p>
+
+    <p className="text-2xl font-black text-slate-900">
+      {team.points}
+    </p>
+  </div>
+</div>
 
                 {/* Stats */}
                 <div className="mt-5 grid grid-cols-4 gap-2">
