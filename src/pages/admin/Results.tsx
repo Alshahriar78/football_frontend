@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { matchAPI, type Match } from '../../services/matchService';
 
@@ -42,6 +43,26 @@ const Results = () => {
     loadMatches();
   }, []);
 
+  // --------------------------------------------------
+  // SORT MATCHES
+  // Incomplete / pending matches → TOP
+  // Completed matches → BOTTOM
+  // --------------------------------------------------
+  const sortedMatches = [...matches].sort((a, b) => {
+    const aCompleted = a.status === 'completed';
+    const bCompleted = b.status === 'completed';
+
+    if (aCompleted && !bCompleted) {
+      return 1;
+    }
+
+    if (!aCompleted && bCompleted) {
+      return -1;
+    }
+
+    return 0;
+  });
+
   const handleUpdateResult = async (match: Match) => {
     setError('');
     setSuccess('');
@@ -71,6 +92,9 @@ const Results = () => {
         `Result updated: ${match.homeTeam.teamName} ${homeScore} - ${awayScore} ${match.awayTeam.teamName}`,
       );
 
+      // Reload matches.
+      // If backend changes status to "completed",
+      // the match will automatically move to the bottom.
       await loadMatches();
     } catch (error: any) {
       console.error('RESULT UPDATE ERROR:', error);
@@ -155,7 +179,7 @@ const Results = () => {
         </div>
       ) : (
         <div className="space-y-5">
-          {matches.map((match) => (
+          {sortedMatches.map((match) => (
             <div
               key={match.id}
               className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
