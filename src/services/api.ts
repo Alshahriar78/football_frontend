@@ -2,7 +2,7 @@ import axios from 'axios';
 import { authStorage } from '../utils/auth';
 
 const api = axios.create({
-  baseURL: 'https://backend-production-ced4f.up.railway.app/',
+  baseURL: 'https://backend-aynw.onrender.com/',
   headers: {
     'Content-Type': 'application/json',
   },
